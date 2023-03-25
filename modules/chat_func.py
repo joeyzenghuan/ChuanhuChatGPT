@@ -21,6 +21,29 @@ import modules.shared as shared
 
 # logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] [%(filename)s:%(lineno)d] %(message)s")
 
+import logging
+from logging.handlers import RotatingFileHandler
+import datetime
+import time
+
+# 定义日志文件的命名格式
+log_file_name = 'chatlog_{}.log'.format(time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime()))
+log_file_path = os.path.join(os.getcwd(), log_file_name)
+
+# 定义RotatingFileHandler，按照10M切割日志
+# backupCount表示保留的日志文件数量，如果超出则会被自动删除
+# encoding表示日志文件编码方式
+# delay表示是否在打开日志文件之前创建日志文件
+handler = RotatingFileHandler(log_file_path, mode='a', maxBytes=10*1024*1024, backupCount=500, encoding='utf-8', delay=False)
+# 设置日志的格式
+formatter = logging.Formatter('%(asctime)s(%(levelname)s) [%(filename)s:%(lineno)d]  - %(message)s')
+handler.setFormatter(formatter)
+
+# 将处理器添加到根日志记录器
+logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel(logging.INFO)
+
+
 if TYPE_CHECKING:
     from typing import TypedDict
 
@@ -197,7 +220,7 @@ def stream_predict(
                 chatbot[-1] = (chatbot[-1][0], partial_words+display_append)
                 all_token_counts[-1] += 1
                 yield get_return_value()
-
+    logging.info(f"ChatHistory:   {history} ")
 
 def predict_all(
     openai_api_key,
@@ -248,6 +271,7 @@ def predict_all(
     total_token_count = response["usage"]["total_tokens"]
     all_token_counts[-1] = total_token_count - sum(all_token_counts)
     status_text = construct_token_message(total_token_count)
+    logging.info(f"ChatHistory:   {history} ")
     return chatbot, history, status_text, all_token_counts
 
 
