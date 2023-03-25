@@ -56,18 +56,30 @@ initial_prompt = "You are a helpful assistant."
 HISTORY_DIR = "history"
 TEMPLATES_DIR = "templates"
 
+# AZURE_API_URL
+BASE_AZURE_API_URL = "https://joey-bug-scus.openai.azure.com/openai/deployments/"
+API_URL = BASE_AZURE_API_URL
+
+API_VERSION = "/chat/completions?api-version=2023-03-15-preview"
+
 def get_response(
     openai_api_key, system_prompt, history, temperature, top_p, stream, selected_model
 ):
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "Authorization": f"Bearer {openai_api_key}",
+    # }
+
+    API_URL = BASE_AZURE_API_URL + selected_model + API_VERSION
     headers = {
         "Content-Type": "application/json",
-        "Authorization": f"Bearer {openai_api_key}",
+        "api-key": f"{openai_api_key}",
     }
 
     history = [construct_system(system_prompt), *history]
 
     payload = {
-        "model": selected_model,
+        # "model": selected_model,
         "messages": history,  # [{"role": "user", "content": f"{inputs}"}],
         "temperature": temperature,  # 1.0,
         "top_p": top_p,  # 1.0,
@@ -99,7 +111,8 @@ def get_response(
         logging.info(f"使用自定义API URL: {shared.state.api_url}")
     if proxies:
         response = requests.post(
-            shared.state.api_url,
+            # shared.state.api_url,
+            API_URL,
             headers=headers,
             json=payload,
             stream=True,
@@ -108,7 +121,8 @@ def get_response(
         )
     else:
         response = requests.post(
-            shared.state.api_url,
+            # shared.state.api_url,
+            API_URL,
             headers=headers,
             json=payload,
             stream=True,
@@ -327,7 +341,8 @@ def predict(
     else:
         link_references = ""
 
-    if len(openai_api_key) != 51:
+    # if len(openai_api_key) != 51:   Azure 的 API KeY 长度为 不是 51
+    if len(openai_api_key) > 100:
         status_text = standard_error_msg + no_apikey_msg
         logging.info(status_text)
         chatbot.append((inputs, ""))

@@ -111,6 +111,9 @@ with gr.Blocks(css=customCSS, theme=small_and_beautiful_theme) as demo:
                     use_streaming_checkbox = gr.Checkbox(
                         label="实时传输回答", value=True, visible=enable_streaming_option
                     )
+                    use_AzureAPI_checkbox = gr.Checkbox(
+                        label="使用Azure API", value=True, visible=True
+                    )
                     use_websearch_checkbox = gr.Checkbox(label="使用在线搜索", value=False)
                     language_select_dropdown = gr.Dropdown(
                         label="选择回复语言（针对搜索&索引功能）",
