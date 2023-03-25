@@ -22,6 +22,7 @@ from pygments.formatters import HtmlFormatter
 
 from modules.presets import *
 import modules.shared as shared
+from modules.openai_func import get_usage
 
 logging.basicConfig(
     level=logging.INFO,
@@ -115,8 +116,7 @@ def convert_mdtext(md_text):
 
 
 def convert_asis(userinput):
-    escaped_html = html.escape(userinput).replace(" ", "&nbsp;").replace("\n", "<br>")
-    return f"{escaped_html}"+ALREADY_CONVERTED_MARK
+    return f"<p style=\"white-space:pre-wrap;\">{html.escape(userinput)}</p>"+ALREADY_CONVERTED_MARK
 
 def detect_converted_mark(userinput):
     if userinput.endswith(ALREADY_CONVERTED_MARK):
@@ -350,7 +350,7 @@ def submit_key(key):
     key = key.strip()
     msg = f"API密钥更改为了{hide_middle_chars(key)}"
     logging.info(msg)
-    return key, msg
+    return key, msg, get_usage(key)
 
 
 def sha1sum(filename):
