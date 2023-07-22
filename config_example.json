@@ -19,7 +19,7 @@
     "local_embedding": false, //是否在本地编制索引
     "hide_history_when_not_logged_in": false, //未登录情况下是否不展示对话历史
     "check_update": true, //是否启用检查更新
-    "default_model": "gpt-3.5-turbo", // 默认模型
+    "default_model": "gpt-35-turbo-0301", // 默认模型
 
     //川虎助理设置
     "default_chuanhu_assistant_model": "gpt-4", //川虎助理使用的模型，可选gpt-3.5-turbo或者gpt-4

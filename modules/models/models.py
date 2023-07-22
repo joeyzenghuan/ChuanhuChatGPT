@@ -87,7 +87,7 @@ class OpenAIClient(BaseLLMModel):
             try:
                 usage_data = self._get_billing_data(usage_url)
             except Exception as e:
-                logging.error(f"获取API使用情况失败:" + str(e))
+                # logging.error(f"获取API使用情况失败:" + str(e))
                 return i18n("**获取API使用情况失败**")
             # rounded_usage = "{:.5f}".format(usage_data["total_usage"] / 100)
             rounded_usage = round(usage_data["total_usage"] / 100, 5)
@@ -121,16 +121,23 @@ class OpenAIClient(BaseLLMModel):
         openai_api_key = self.api_key
         system_prompt = self.system_prompt
         history = self.history
-        logging.debug(colorama.Fore.YELLOW +
-                      f"{history}" + colorama.Fore.RESET)
+
+        API_URL = "https://joey-bug-scus.openai.azure.com/openai/deployments/"
+        API_VERSION = "/chat/completions?api-version=2023-03-15-preview"
+        API_URL = API_URL + self.model_name + API_VERSION
+
+        # logging.debug(colorama.Fore.YELLOW +
+                    #   f"{history}" + colorama.Fore.RESET)
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {openai_api_key}",
+            # "Authorization": f"Bearer {openai_api_key}",
+            "api-key": f"{openai_api_key}",
         }
 
         if system_prompt is not None:
             history = [construct_system(system_prompt), *history]
-
+        
+        logging.info(colorama.Fore.YELLOW + f"Prompt Input: {history} " + colorama.Fore.RESET)
         payload = {
             "model": self.model_name,
             "messages": history,
@@ -151,6 +158,10 @@ class OpenAIClient(BaseLLMModel):
         if self.user_identifier:
             payload["user"] = self.user_identifier
 
+
+        logging.info(colorama.Fore.RED + f"Payload: {json.dumps(payload)}" + colorama.Fore.RESET)
+
+                # existing code here
         if stream:
             timeout = TIMEOUT_STREAMING
         else:
@@ -163,7 +174,8 @@ class OpenAIClient(BaseLLMModel):
         with retrieve_proxy():
             try:
                 response = requests.post(
-                    shared.state.completion_url,
+                    # shared.state.completion_url,
+                    API_URL,
                     headers=headers,
                     json=payload,
                     stream=stream,
@@ -176,7 +188,8 @@ class OpenAIClient(BaseLLMModel):
     def _refresh_header(self):
         self.headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.api_key}",
+            # "Authorization": f"Bearer {self.api_key}",
+            "api-key": f"{self.api_key}",
         }
 
     def _get_billing_data(self, billing_url):

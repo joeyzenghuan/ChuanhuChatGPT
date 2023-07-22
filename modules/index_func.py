@@ -118,7 +118,20 @@ def construct_index(
         embeddings = HuggingFaceEmbeddings(model_name = "sentence-transformers/distiluse-base-multilingual-cased-v2")
     else:
         from langchain.embeddings import OpenAIEmbeddings
-        embeddings = OpenAIEmbeddings(openai_api_base=os.environ.get("OPENAI_API_BASE", None), openai_api_key=os.environ.get("OPENAI_EMBEDDING_API_KEY", api_key))
+        # embeddings = OpenAIEmbeddings(openai_api_base=os.environ.get("OPENAI_API_BASE", None), openai_api_key=os.environ.get("OPENAI_EMBEDDING_API_KEY", api_key))
+
+        os.environ["OPENAI_API_TYPE"] = "azure"
+        os.environ["OPENAI_API_BASE"] = "https://joey-bug-scus.openai.azure.com/"
+        os.environ["OPENAI_API_KEY"] = "719f791414a64013b89d56f94af77f34"
+        os.environ["OPENAI_API_VERSION"] = "2023-05-15"
+        # embeddings = OpenAIEmbeddings(deployment="text-embedding-ada-002-deployment")
+        # openai.api_type = "azure"
+        # openai.api_base = "https://joey-bug-scus.openai.azure.com/"
+        # openai.api_version = "2023-05-15"
+        # openai.openai_api_key = "719f791414a64013b89d56f94af77f34"
+        embeddings = OpenAIEmbeddings(deployment="text-embedding-ada-002", chunk_size = 16)      
+
+        # logging.info("embedding:" + embeddings.embedding_ctx_length)
     if os.path.exists(index_path):
         logging.info("找到了缓存的索引文件，加载中……")
         return FAISS.load_local(index_path, embeddings)
